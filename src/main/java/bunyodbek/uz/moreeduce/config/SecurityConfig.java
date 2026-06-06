@@ -45,7 +45,12 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS yoqildi
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/**", "/api/v1/courses/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/courses/**",
+                                "/api/v1/auth/**",
+                                "/api/v1/courses/**"
+                        ).permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger uchun ruxsat
                         .requestMatchers("/api/v1/superadmin/**").hasAuthority(Role.SUPER_ADMIN.name())
                         .requestMatchers("/api/v1/admin/**").hasAnyAuthority(Role.ADMIN.name(), Role.SUPER_ADMIN.name())

@@ -2,6 +2,7 @@ package bunyodbek.uz.moreeduce.controller;
 
 import bunyodbek.uz.moreeduce.dto.*;
 import bunyodbek.uz.moreeduce.service.AuthenticationService;
+import bunyodbek.uz.moreeduce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping({"/api/v1/auth", "/auth"})
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @Operation(
             summary = "Ro'yxatdan o'tish",
@@ -46,6 +50,11 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SignInRequest request) {
         return ResponseEntity.ok(authenticationService.signin(request));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDto> me(Principal principal) {
+        return ResponseEntity.ok(userService.getMyProfile(principal.getName()));
     }
 
     @Operation(

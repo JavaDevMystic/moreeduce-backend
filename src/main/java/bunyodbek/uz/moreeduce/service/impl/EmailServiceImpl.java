@@ -1,77 +1,61 @@
 package bunyodbek.uz.moreeduce.service.impl;
 
 import bunyodbek.uz.moreeduce.service.EmailService;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
-
-    @Value("${spring.mail.password}") // Bu yerda endi API KEY bo'ladi
-    private String apiKey;
-
-    private static final String BREVO_API_URL = "";
 
     @Override
     @Async
     public void sendVerificationEmail(String to, String code) {
         String subject = "MoreEduce - Email Verification";
-        String content = "Your verification code is: " + code;
+        String content = """
+                <div style="font-family: Arial, sans-serif;">
+                    <h2>Email verification</h2>
+                    <p>Your verification code is:</p>
+                    <h1 style="letter-spacing: 4px;">%s</h1>
+                    <p>This code will expire soon.</p>
+                </div>
+                """.formatted(code);
+
         sendEmail(to, subject, content);
     }
 
     @Override
     @Async
     public void sendNotification(String to, String subject, String messageText) {
-        sendEmail(to, subject, messageText);
+        String content = "<p>" + messageText + "</p>";
+        sendEmail(to, subject, content);
     }
 
-    private void sendEmail(String to, String subject, String content) {
+    private void sendEmail(String to, String subject, String htmlContent) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", apiKey);
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            MimeMessage message = mailSender.createMimeMessage();
 
-            Map<String, Object> sender = new HashMap<>();
-            sender.put("name", "MoreEduce");
-            sender.put("email", fromEmail);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
 
-            Map<String, Object> toObj = new HashMap<>();
-            toObj.put("email", to);
+            mailSender.send(message);
 
-            Map<String, Object> body = new HashMap<>();
-            body.put("sender", sender);
-            body.put("to", List.of(toObj));
-            body.put("subject", subject);
-            body.put("htmlContent", "<p>" + content + "</p>");
-
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, request, String.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("Email sent successfully to: {}", to);
-            } else {
-                log.error("Failed to send email. Status: {}, Body: {}", response.getStatusCode(), response.getBody());
-            }
+            log.info("Email sent successfully to: {}", to);
         } catch (Exception e) {
             log.error("Exception while sending email to: {}", to, e);
         }

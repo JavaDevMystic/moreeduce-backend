@@ -2,15 +2,13 @@ package bunyodbek.uz.moreeduce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration;
-import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
 
-@SpringBootApplication(exclude = {GcpStorageAutoConfiguration.class, GcpContextAutoConfiguration.class})
+@SpringBootApplication
 @EnableScheduling
 @EnableAsync // Asinxron metodlarni ishlatish uchun (masalan, email yuborish)
 @EnableCaching // KESHNI YOQISH UCHUN

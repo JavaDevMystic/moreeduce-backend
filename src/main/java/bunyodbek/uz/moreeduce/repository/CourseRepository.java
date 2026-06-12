@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,8 +32,18 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("SELECT c FROM Course c ORDER BY size(c.enrollments) DESC")
     List<Course> findTop5ByOrderByEnrollmentsDesc(Pageable pageable);
 
-    @Query("SELECT c FROM Course c WHERE c.teacher.id = :teacherId ORDER BY size(c.enrollments) DESC")
-    Optional<Course> findTopByTeacherIdOrderByEnrollmentsDesc(Long teacherId);
+    @Query("""
+            SELECT c
+            FROM Course c
+            LEFT JOIN c.enrollments e
+            WHERE c.teacher.id = :teacherId
+            GROUP BY c
+            ORDER BY COUNT(e) DESC
+            """)
+    List<Course> findMostPopularCourses(
+            @Param("teacherId") Long teacherId,
+            Pageable pageable
+    );
 
     List<Course> findByTitleContainingIgnoreCase(String title);
     List<Course> findByCategory(String category);

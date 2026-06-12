@@ -7,6 +7,7 @@ import bunyodbek.uz.moreeduce.repository.*;
 import bunyodbek.uz.moreeduce.service.TeacherDashboardService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -53,9 +54,16 @@ public class TeacherDashboardServiceImpl implements TeacherDashboardService {
     @Override
     public CourseDto getMostPopularCourse(Principal principal) {
         User teacher = getUserByEmail(principal.getName());
-        Optional<Course> courseOpt = courseRepository.findTopByTeacherIdOrderByEnrollmentsDesc(teacher.getId());
+        Optional<Course> courseOpt = courseRepository
+                .findMostPopularCourses(
+                        teacher.getId(),
+                        PageRequest.of(0, 1)
+                )
+                .stream()
+                .findFirst();
         return courseOpt.map(this::mapToCourseDto).orElse(null);
     }
+
 
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)

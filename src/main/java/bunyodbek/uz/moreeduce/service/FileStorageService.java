@@ -26,6 +26,9 @@ public class FileStorageService {
     @Value("${minio.url}")
     private String minioUrl;
 
+    @Value("${minio.public-url}")
+    private String minioPublicUrl;
+
     private static final long MAX_FILE_SIZE = 150 * 1024 * 1024;
 
     @PostConstruct
@@ -77,7 +80,7 @@ public class FileStorageService {
                             .build()
             );
 
-            return minioUrl + "/" + bucketName + "/" + newFileName;
+            return minioPublicUrl + "/" + bucketName + "/" + newFileName;
         } catch (Exception e) {
             throw new IOException("MinIO fayl yuklashda xatolik: " + e.getMessage(), e);
         }

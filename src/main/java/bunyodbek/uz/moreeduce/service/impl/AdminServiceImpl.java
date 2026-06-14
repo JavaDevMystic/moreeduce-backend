@@ -24,6 +24,7 @@ public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final ModuleRepository moduleRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final PlatformPaymentRepository platformPaymentRepository;
     private final CommentRepository commentRepository;
@@ -251,6 +252,7 @@ public class AdminServiceImpl implements AdminService {
                 .teacherId(course.getTeacher().getId())
                 .teacherName(course.getTeacher().getFirstName() + " " + course.getTeacher().getLastName())
                 .studentsCount(studentsCount)
+                .modulesCount(moduleRepository.countByCourseId(course.getId()))
                 .build();
     }
 

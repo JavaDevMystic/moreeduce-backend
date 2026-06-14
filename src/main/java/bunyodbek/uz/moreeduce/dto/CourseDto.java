@@ -27,5 +27,6 @@ public class CourseDto {
     private Long teacherId;
     private String teacherName;
     private List<ModuleDto> modules; // Kurs modullari
+    private long modulesCount;  // module count
     private long studentsCount; // Kursga yozilgan talabalar soni
 }

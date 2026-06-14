@@ -20,4 +20,6 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
      */
     @Query("SELECT COALESCE(MAX(m.moduleOrder), 0) FROM Module m WHERE m.course.id = :courseId")
     int findMaxModuleOrder(Long courseId);
+
+    long countByCourseId(Long courseId);
 }

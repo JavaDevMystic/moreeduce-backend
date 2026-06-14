@@ -23,6 +23,7 @@ public class TeacherDashboardServiceImpl implements TeacherDashboardService {
     private final EnrollmentRepository enrollmentRepository;
     private final AssignmentSubmissionRepository submissionRepository;
     private final CourseRepository courseRepository;
+    private final ModuleRepository moduleRepository;
 
     @Override
     public long getTotalStudentsCount(Principal principal) {
@@ -76,6 +77,7 @@ public class TeacherDashboardServiceImpl implements TeacherDashboardService {
                 .title(course.getTitle())
                 .thumbnailUrl(course.getThumbnailUrl())
                 .studentsCount(enrollmentRepository.countByCourseId(course.getId()))
+                .modulesCount(moduleRepository.countByCourseId(course.getId()))
                 .build();
     }
 }

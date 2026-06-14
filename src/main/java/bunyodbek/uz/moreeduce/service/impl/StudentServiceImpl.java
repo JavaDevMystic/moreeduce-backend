@@ -33,6 +33,7 @@ public class StudentServiceImpl implements StudentService {
     private final AssignmentRepository assignmentRepository;
     private final AssignmentSubmissionRepository submissionRepository;
     private final FileStorageService fileStorageService;
+    private final ModuleRepository  moduleRepository;
     private final EmailService emailService;
 
     @Override
@@ -183,6 +184,7 @@ public class StudentServiceImpl implements StudentService {
                 .price(course.getPrice())
                 .teacherId(course.getTeacher().getId())
                 .teacherName(course.getTeacher().getFirstName() + " " + course.getTeacher().getLastName())
+                .modulesCount(moduleRepository.countByCourseId(course.getId()))
                 .build();
     }
 

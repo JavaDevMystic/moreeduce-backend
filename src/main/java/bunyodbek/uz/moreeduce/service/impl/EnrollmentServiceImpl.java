@@ -33,6 +33,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final StudentProgressRepository progressRepository;
     private final LessonRepository lessonRepository;
     private final FileStorageService fileStorageService;
+    private final ModuleRepository moduleRepository;
 
     @Override
     @Transactional
@@ -223,6 +224,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .teacherId(course.getTeacher().getId())
                 .teacherName(course.getTeacher().getFirstName() + " " + course.getTeacher().getLastName())
                 .studentsCount(enrollmentRepository.countByCourseId(course.getId()))
+                .modulesCount(moduleRepository.countByCourseId(course.getId()))
                 .build();
     }
 }

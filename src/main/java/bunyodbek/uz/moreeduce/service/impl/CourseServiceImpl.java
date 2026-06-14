@@ -380,6 +380,7 @@ public class CourseServiceImpl implements CourseService {
                 .teacherId(course.getTeacher().getId())
                 .teacherName(course.getTeacher().getFirstName() + " " + course.getTeacher().getLastName())
                 .studentsCount(enrollmentRepository.countByCourseId(course.getId()))
+                .modulesCount(moduleRepository.countByCourseId(course.getId()))
                 .build();
     }
 

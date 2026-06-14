@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reflections")
@@ -83,5 +84,14 @@ public class ReflectionController {
             @PathVariable Long lessonId,
             Principal principal) {
         return ResponseEntity.ok(reflectionService.getMyResultForLesson(lessonId, principal.getName()));
+    }
+
+    @GetMapping("/{reflectionId}/submissions")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public ResponseEntity<List<ReflectionSubmissionDto>> getReflectionSubmissions(
+            @PathVariable Long reflectionId,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(reflectionService.getReflectionSubmissions(reflectionId, principal.getName()));
     }
 }

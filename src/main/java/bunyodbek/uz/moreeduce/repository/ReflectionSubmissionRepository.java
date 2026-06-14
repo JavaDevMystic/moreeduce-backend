@@ -13,7 +13,10 @@ public interface ReflectionSubmissionRepository extends JpaRepository<Reflection
     
     @EntityGraph(attributePaths = {"student", "reflection", "reflection.lesson"})
     List<ReflectionSubmission> findByStudentId(Long studentId);
-    
+
+    List<ReflectionSubmission> findByReflectionId(Long reflectionId);
+
+
     @EntityGraph(attributePaths = {"student", "reflection", "reflection.lesson", "criterionResults", "criterionResults.criterion"})
     Optional<ReflectionSubmission> findFirstByReflectionIdAndStudentIdOrderBySubmittedAtDesc(Long reflectionId, Long studentId);
 

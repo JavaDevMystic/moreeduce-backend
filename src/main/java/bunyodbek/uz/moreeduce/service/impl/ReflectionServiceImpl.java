@@ -49,7 +49,7 @@ public class ReflectionServiceImpl implements ReflectionService {
                 .question3(reflectionDto.getQuestion3())
                 .question4(reflectionDto.getQuestion4())
                 .build();
-        
+
         List<ReflectionCriterion> criteria = buildCriteria(reflectionDto.getCriteria(), reflection);
         reflection.setCriteria(criteria);
 
@@ -123,39 +123,39 @@ public class ReflectionServiceImpl implements ReflectionService {
 
         return mapToSubmissionDto(savedSubmission);
     }
-    
+
     @Transactional
     public void processAndSaveAiAssessment(Long submissionId, String aiJsonResponse) {
         ReflectionSubmission submission = submissionRepository.findById(submissionId)
-            .orElseThrow(() -> new EntityNotFoundException("Submission not found: " + submissionId));
+                .orElseThrow(() -> new EntityNotFoundException("Submission not found: " + submissionId));
 
         try {
             AiReflectionResponse response = objectMapper.readValue(aiJsonResponse, AiReflectionResponse.class);
             submission.setGeneralAiFeedback(response.getGeneralFeedback());
 
             Map<String, ReflectionCriterion> criteriaMap = submission.getReflection().getCriteria().stream()
-                .collect(Collectors.toMap(ReflectionCriterion::getCriterion, c -> c));
+                    .collect(Collectors.toMap(ReflectionCriterion::getCriterion, c -> c));
 
             List<ReflectionCriterionResult> results = response.getScores().stream()
-                .map(score -> {
-                    ReflectionCriterion criterion = criteriaMap.get(score.getCriterion());
-                    if (criterion == null) {
-                        log.warn("AI returned score for an unknown criterion: {}", score.getCriterion());
-                        return null;
-                    }
-                    return ReflectionCriterionResult.builder()
-                        .submission(submission)
-                        .criterion(criterion)
-                        .score(score.getScore())
-                        .build();
-                })
-                .filter(java.util.Objects::nonNull)
-                .collect(Collectors.toList());
-            
+                    .map(score -> {
+                        ReflectionCriterion criterion = criteriaMap.get(score.getCriterion());
+                        if (criterion == null) {
+                            log.warn("AI returned score for an unknown criterion: {}", score.getCriterion());
+                            return null;
+                        }
+                        return ReflectionCriterionResult.builder()
+                                .submission(submission)
+                                .criterion(criterion)
+                                .score(score.getScore())
+                                .build();
+                    })
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
+
             criterionResultRepository.saveAll(results);
             submission.setCriterionResults(results);
             submission.calculateAndSetReflectionIndex();
-            
+
             submissionRepository.save(submission);
 
         } catch (JsonProcessingException e) {
@@ -181,6 +181,22 @@ public class ReflectionServiceImpl implements ReflectionService {
     }
 
     @Override
+    public List<ReflectionSubmissionDto> getReflectionSubmissions(
+            Long reflectionId,
+            String teacherEmail
+    ) {
+        Reflection reflection = getReflectionAndVerifyOwner(reflectionId, teacherEmail);
+        List<ReflectionSubmission> submissions =
+                submissionRepository.findByReflectionId(reflectionId);
+
+        return submissions.stream()
+                .map(this::mapToSubmissionDto)
+                .collect(Collectors.toList());
+
+    }
+
+
+    @Override
     public ReflectionSubmissionDto getMyResultForLesson(Long lessonId, String studentEmail) {
         User student = getUserByEmail(studentEmail);
         ReflectionSubmission submission = submissionRepository
@@ -190,11 +206,11 @@ public class ReflectionServiceImpl implements ReflectionService {
     }
 
     // Helper va Mapper metodlar
-    
+
     private ReflectionDto mapToReflectionDto(Reflection reflection) {
         List<ReflectionCriterionDto> criteriaDtos = (reflection.getCriteria() != null)
-            ? reflection.getCriteria().stream().map(this::mapToCriterionDto).collect(Collectors.toList())
-            : Collections.emptyList();
+                ? reflection.getCriteria().stream().map(this::mapToCriterionDto).collect(Collectors.toList())
+                : Collections.emptyList();
 
         return ReflectionDto.builder()
                 .id(reflection.getId())
@@ -210,12 +226,12 @@ public class ReflectionServiceImpl implements ReflectionService {
 
     private ReflectionSubmissionDto mapToSubmissionDto(ReflectionSubmission submission) {
         List<ReflectionCriterionResultDto> criterionResultDtos = (submission.getCriterionResults() != null)
-            ? submission.getCriterionResults().stream().map(this::mapToCriterionResultDto).collect(Collectors.toList())
-            : Collections.emptyList();
-        
+                ? submission.getCriterionResults().stream().map(this::mapToCriterionResultDto).collect(Collectors.toList())
+                : Collections.emptyList();
+
         Integer aiTotalScore = (submission.getCriterionResults() != null)
-            ? submission.getCriterionResults().stream().mapToInt(ReflectionCriterionResult::getScore).sum()
-            : null;
+                ? submission.getCriterionResults().stream().mapToInt(ReflectionCriterionResult::getScore).sum()
+                : null;
 
         return ReflectionSubmissionDto.builder()
                 .id(submission.getId())
@@ -235,34 +251,34 @@ public class ReflectionServiceImpl implements ReflectionService {
                 .submittedAt(submission.getSubmittedAt())
                 .build();
     }
-    
+
     private ReflectionCriterionDto mapToCriterionDto(ReflectionCriterion criterion) {
         return ReflectionCriterionDto.builder()
-            .id(criterion.getId())
-            .criterion(criterion.getCriterion())
-            .points(criterion.getPoints())
-            .build();
+                .id(criterion.getId())
+                .criterion(criterion.getCriterion())
+                .points(criterion.getPoints())
+                .build();
     }
 
     private ReflectionCriterionResultDto mapToCriterionResultDto(ReflectionCriterionResult result) {
         return ReflectionCriterionResultDto.builder()
-            .criterion(result.getCriterion().getCriterion())
-            .score(result.getScore())
-            .maxPoints(result.getCriterion().getPoints())
-            .build();
+                .criterion(result.getCriterion().getCriterion())
+                .score(result.getScore())
+                .maxPoints(result.getCriterion().getPoints())
+                .build();
     }
 
     private List<ReflectionCriterion> buildCriteria(List<ReflectionCriterionDto> dtos, Reflection reflection) {
         if (dtos == null) return Collections.emptyList();
         return dtos.stream()
-            .map(dto -> ReflectionCriterion.builder()
-                .criterion(dto.getCriterion())
-                .points(dto.getPoints())
-                .reflection(reflection)
-                .build())
-            .collect(Collectors.toList());
+                .map(dto -> ReflectionCriterion.builder()
+                        .criterion(dto.getCriterion())
+                        .points(dto.getPoints())
+                        .reflection(reflection)
+                        .build())
+                .collect(Collectors.toList());
     }
-    
+
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + email));

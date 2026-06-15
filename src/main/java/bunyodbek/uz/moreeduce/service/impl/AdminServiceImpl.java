@@ -191,6 +191,7 @@ public class AdminServiceImpl implements AdminService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + courseId));
         course.setStatus(CourseStatus.APPROVED);
+        course.setPublic(Boolean.TRUE);
         courseRepository.save(course);
     }
 

@@ -2,6 +2,7 @@ package bunyodbek.uz.moreeduce.controller;
 
 import bunyodbek.uz.moreeduce.dto.EnrollmentDto;
 import bunyodbek.uz.moreeduce.dto.ManualEnrollmentRequest;
+import bunyodbek.uz.moreeduce.entity.EnrollmentStatus;
 import bunyodbek.uz.moreeduce.service.EnrollmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -69,5 +70,13 @@ public class AdminEnrollmentController {
         return ResponseEntity.ok(enrollmentService.getPendingEnrollments(pageable, principal));
     }
 
+    @PutMapping("/{enrollmentId}/status")
+    public ResponseEntity<Void> updateEnrollmentStatus(
+            @PathVariable Long enrollmentId,
+            @RequestParam EnrollmentStatus status,
+            Principal principal) {
+        enrollmentService.updateEnrollmentStatus(enrollmentId, status, principal);
+        return ResponseEntity.ok().build();
+    }
 
 }

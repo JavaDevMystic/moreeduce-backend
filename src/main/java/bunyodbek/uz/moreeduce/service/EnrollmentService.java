@@ -25,4 +25,6 @@ public interface EnrollmentService {
     EnrollmentDto manuallyEnrollStudent(ManualEnrollmentRequest request, Principal principal);
     void unenrollStudentByAdmin(Long enrollmentId, Principal principal);
     void updateEnrollmentStatus(Long enrollmentId, EnrollmentStatus status, Principal principal); // Yangi metod
+    Page<EnrollmentDto> getAllEnrollments(Pageable pageable, Principal principal);
+    Page<EnrollmentDto> getPendingEnrollments(Pageable pageable, Principal principal);
 }

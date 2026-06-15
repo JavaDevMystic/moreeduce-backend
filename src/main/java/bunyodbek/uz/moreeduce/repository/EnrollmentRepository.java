@@ -1,6 +1,7 @@
 package bunyodbek.uz.moreeduce.repository;
 
 import bunyodbek.uz.moreeduce.entity.Enrollment;
+import bunyodbek.uz.moreeduce.entity.EnrollmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -30,4 +31,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.teacher.id = :teacherId AND e.status = 'PENDING'")
     long countByTeacherIdAndStatusPending(Long teacherId);
+
+    Page<Enrollment> findByStatus(EnrollmentStatus status, Pageable pageable);
 }

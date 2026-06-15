@@ -20,7 +20,7 @@ import java.security.Principal;
 @RequestMapping("/api/v1/admin/enrollments")
 @RequiredArgsConstructor
 @Tag(name = "Admin Enrollment Management", description = "A'zoliklarni admin/o'qituvchi tomonidan boshqarish")
-@PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER', 'SUPER_ADMIN')")
 public class AdminEnrollmentController {
 
     private final EnrollmentService enrollmentService;
@@ -51,4 +51,23 @@ public class AdminEnrollmentController {
         enrollmentService.unenrollStudentByAdmin(enrollmentId, principal);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Barcha yozilishlarni olish")
+    @GetMapping
+    public ResponseEntity<Page<EnrollmentDto>> getAllEnrollments(
+            @Parameter(hidden = true) Pageable pageable,
+            Principal principal) {
+        return ResponseEntity.ok(enrollmentService.getAllEnrollments(pageable, principal));
+    }
+
+
+    @Operation(summary = "Tasdiqlanishi kutilayotgan yozilishlarni olish")
+    @GetMapping("/pending")
+    public ResponseEntity<Page<EnrollmentDto>> getPendingEnrollments(
+            @Parameter(hidden = true) Pageable pageable,
+            Principal principal) {
+        return ResponseEntity.ok(enrollmentService.getPendingEnrollments(pageable, principal));
+    }
+
+
 }

@@ -182,6 +182,32 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollmentRepository.save(enrollment);
     }
 
+    @Override
+    public Page<EnrollmentDto> getAllEnrollments(Pageable pageable, Principal principal) {
+        User currentUser = getUserByEmail(principal.getName());
+
+        if (!currentUser.getRole().equals(Role.ADMIN)
+                && !currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new AccessDeniedException("You do not have permission to view all enrollments.");
+        }
+
+        return enrollmentRepository.findAll(pageable)
+                .map(this::mapToDto);
+    }
+
+    @Override
+    public Page<EnrollmentDto> getPendingEnrollments(Pageable pageable, Principal principal) {
+        User currentUser = getUserByEmail(principal.getName());
+
+        if (!currentUser.getRole().equals(Role.ADMIN)
+                && !currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new AccessDeniedException("You do not have permission to view pending enrollments.");
+        }
+
+        return enrollmentRepository.findByStatus(EnrollmentStatus.PENDING, pageable)
+                .map(this::mapToDto);
+    }
+
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));

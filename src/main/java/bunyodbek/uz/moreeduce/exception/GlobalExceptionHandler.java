@@ -288,48 +288,48 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(
-            ResourceNotFoundException ex
-    ) {
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 404,
-                        "error", "Not Found",
-                        "message", ex.getMessage()
-                ));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleBadRequest(
-            IllegalArgumentException ex
-    ) {
-
-        return ResponseEntity
-                .badRequest()
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 400,
-                        "error", "Bad Request",
-                        "message", ex.getMessage()
-                ));
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalState(
-            IllegalStateException ex
-    ) {
-
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 409,
-                        "error", "Conflict",
-                        "message", ex.getMessage()
-                ));
-    }
+//    @ExceptionHandler(ResourceNotFoundException.class)
+//    public ResponseEntity<?> handleNotFound(
+//            ResourceNotFoundException ex
+//    ) {
+//
+//        return ResponseEntity
+//                .status(HttpStatus.NOT_FOUND)
+//                .body(Map.of(
+//                        "timestamp", LocalDateTime.now(),
+//                        "status", 404,
+//                        "error", "Not Found",
+//                        "message", ex.getMessage()
+//                ));
+//    }
+//
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    public ResponseEntity<?> handleBadRequest(
+//            IllegalArgumentException ex
+//    ) {
+//
+//        return ResponseEntity
+//                .badRequest()
+//                .body(Map.of(
+//                        "timestamp", LocalDateTime.now(),
+//                        "status", 400,
+//                        "error", "Bad Request",
+//                        "message", ex.getMessage()
+//                ));
+//    }
+//
+//    @ExceptionHandler(IllegalStateException.class)
+//    public ResponseEntity<?> handleIllegalState(
+//            IllegalStateException ex
+//    ) {
+//
+//        return ResponseEntity
+//                .status(HttpStatus.CONFLICT)
+//                .body(Map.of(
+//                        "timestamp", LocalDateTime.now(),
+//                        "status", 409,
+//                        "error", "Conflict",
+//                        "message", ex.getMessage()
+//                ));
+//    }
 }

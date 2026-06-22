@@ -62,13 +62,13 @@ public class AdminEnrollmentController {
     }
 
 
-    @Operation(summary = "Tasdiqlanishi kutilayotgan yozilishlarni olish")
-    @GetMapping("/pending")
-    public ResponseEntity<Page<EnrollmentDto>> getPendingEnrollments(
-            @Parameter(hidden = true) Pageable pageable,
-            Principal principal) {
-        return ResponseEntity.ok(enrollmentService.getPendingEnrollments(pageable, principal));
-    }
+//    @Operation(summary = "Tasdiqlanishi kutilayotgan yozilishlarni olish")
+//    @GetMapping("/pending")
+//    public ResponseEntity<Page<EnrollmentDto>> getPendingEnrollments(
+//            @Parameter(hidden = true) Pageable pageable,
+//            Principal principal) {
+//        return ResponseEntity.ok(enrollmentService.getPendingEnrollments(pageable, principal));
+//    }
 
     @PutMapping("/{enrollmentId}/status")
     public ResponseEntity<Void> updateEnrollmentStatus(

@@ -71,14 +71,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
         String message = "Ma'lumotlarni saqlashda xatolik yuz berdi.";
         String errorCode = "DATA_CONFLICT";
-        
+
         if (ex.getCause() != null && ex.getCause().getMessage() != null) {
             if (ex.getCause().getMessage().contains("duplicate key")) {
                 message = "Ushbu ma'lumot (email yoki telefon) allaqachon mavjud.";
                 errorCode = "DUPLICATE_ENTRY";
             }
         }
-        
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
@@ -221,7 +221,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleJwtExceptions(Exception ex, HttpServletRequest request) {
         String message = "Token yaroqsiz.";
         String errorCode = "INVALID_TOKEN";
-        
+
         if (ex instanceof ExpiredJwtException) {
             message = "Token muddati tugagan. Iltimos, qaytadan tizimga kiring.";
             errorCode = "TOKEN_EXPIRED";
@@ -285,5 +285,51 @@ public class GlobalExceptionHandler {
                 .errorCode("INTERNAL_SERVER_ERROR")
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(
+            ResourceNotFoundException ex
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 404,
+                        "error", "Not Found",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleBadRequest(
+            IllegalArgumentException ex
+    ) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 400,
+                        "error", "Bad Request",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalState(
+            IllegalStateException ex
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", ex.getMessage()
+                ));
     }
 }

@@ -1,9 +1,10 @@
 package bunyodbek.uz.moreeduce.service.impl;
 
+import bunyodbek.uz.moreeduce.dto.AdminEnrollmentDto;
 import bunyodbek.uz.moreeduce.dto.WithdrawalRequestDto;
-import bunyodbek.uz.moreeduce.entity.User;
-import bunyodbek.uz.moreeduce.entity.WithdrawalRequest;
-import bunyodbek.uz.moreeduce.entity.WithdrawalStatus;
+import bunyodbek.uz.moreeduce.entity.*;
+import bunyodbek.uz.moreeduce.exception.ResourceNotFoundException;
+import bunyodbek.uz.moreeduce.repository.EnrollmentRepository;
 import bunyodbek.uz.moreeduce.repository.UserRepository;
 import bunyodbek.uz.moreeduce.repository.WithdrawalRequestRepository;
 import bunyodbek.uz.moreeduce.service.WithdrawalService;
@@ -26,6 +27,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 
     private final WithdrawalRequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Override
     @Transactional
@@ -123,8 +125,56 @@ public class WithdrawalServiceImpl implements WithdrawalService {
         request.setProcessedAt(LocalDateTime.now());
         requestRepository.save(request);
     }
+
+    @Override
+    public List<AdminEnrollmentDto> getPendingEnrollments() {
+
+        return enrollmentRepository
+                .findAllByStatusWithDetails(
+                        EnrollmentStatus.PENDING
+                )
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateEnrollmentStatus(
+            Long enrollmentId,
+            EnrollmentStatus status
+    ) {
+
+        if (status != EnrollmentStatus.APPROVED
+                && status != EnrollmentStatus.REJECTED) {
+
+            throw new IllegalArgumentException(
+                    "Faqat APPROVED yoki REJECTED qiymatlari yuborilishi mumkin"
+            );
+        }
+
+        Enrollment enrollment = enrollmentRepository
+                .findById(enrollmentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Enrollment",
+                                enrollmentId
+                        ));
+
+        if (enrollment.getStatus() != EnrollmentStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Bu enrollment allaqachon ko'rib chiqilgan"
+            );
+        }
+
+        enrollment.setStatus(status);
+
+        enrollmentRepository.save(enrollment);
+    }
     
     // --- Helper & Mapper Methods ---
+
+
 
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -146,6 +196,33 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                 .adminComment(request.getAdminComment())
                 .requestedAt(request.getRequestedAt())
                 .processedAt(request.getProcessedAt())
+                .build();
+    }
+
+    private AdminEnrollmentDto toDto(Enrollment enrollment) {
+
+        User student = enrollment.getStudent();
+        Course course = enrollment.getCourse();
+
+        return AdminEnrollmentDto.builder()
+                .enrollmentId(enrollment.getId())
+
+                .studentId(student.getId())
+                .studentName(
+                        student.getFirstName()
+                                + " "
+                                + student.getLastName()
+                )
+
+                .courseId(course.getId())
+                .courseName(course.getTitle())
+
+                .paymentReceiptUrl(
+                        enrollment.getPaymentReceiptUrl()
+                )
+
+                .status(enrollment.getStatus())
+                .enrolledAt(enrollment.getEnrolledAt())
                 .build();
     }
 }

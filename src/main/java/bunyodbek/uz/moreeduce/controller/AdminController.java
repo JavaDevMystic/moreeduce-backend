@@ -153,4 +153,28 @@ public class AdminController {
         adminService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/enrollments/pending")
+    public ResponseEntity<List<AdminEnrollmentDto>> getPendingEnrollments() {
+        return ResponseEntity.ok(
+                withdrawalService.getPendingEnrollments()
+        );
+    }
+
+    @PutMapping("/{enrollmentId}/status")
+    public ResponseEntity<String> updateEnrollmentStatus(
+            @PathVariable Long enrollmentId,
+            @RequestParam EnrollmentStatus status
+    ) {
+
+        withdrawalService.updateEnrollmentStatus(
+                enrollmentId,
+                status
+        );
+
+        return ResponseEntity.ok(
+                "Enrollment status muvaffaqiyatli yangilandi"
+        );
+    }
+
 }
